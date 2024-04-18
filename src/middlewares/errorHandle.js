@@ -1,16 +1,20 @@
 import mongoose from 'mongoose';
+import BaseErro from '../errors/baseError.js';
+import IncorrectRequest from '../errors/IncorrectRequest.js';
+import ValidationError from '../errors/ValidationError.js';
 
-// eslint-disable-next-line no-unused-vars
+//eslint-disable-next-line no-unused-vars
 function errorHandle(erro, req, res, next){
   if(erro instanceof mongoose.Error.CastError){ 
-    res.status(400).json({message: 'Incorrectly entered data.'});
+    new IncorrectRequest().sendResponse(res);
 
   }
+  else if(erro instanceof mongoose.Error.ValidationError){
+    new ValidationError(erro).sendResponse(res);
+  }
   else{
-    res.status(500).json({message:`${erro.message} - Error to find author.`});
+    new BaseErro().sendResponse(res);
   }
 }
 
 export default errorHandle;
-
-
