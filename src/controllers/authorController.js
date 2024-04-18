@@ -1,62 +1,63 @@
-import mongoose from 'mongoose';
+
 import { author } from '../models/Author.js';
 
 class AuthorController{
 
-  static async listAuthors(req, res){
+  static async listAuthors(req, res, next){
     try{
       const listAuthors = await author.find({});
       res.status(200).json(listAuthors);
+
     } catch(erro){
-      res.status(500).json({message:`${erro.message} - Error to list authors`});
+      next(erro);
+      
     }
   }
-  static async listAuthorById(req, res){
+  static async listAuthorById(req, res, next){
     try{
       const id = req.params.id;
       const authorFound = await author.findById(id);
       if (authorFound != null){
         res.status(200).json(authorFound);
+
       } else{
         res.status(404).json({ message:'Author not found.'});
       }
     } catch(erro){
-      if(erro instanceof mongoose.Error.CastError){
-        res.status(400).json({message: 'Incorrectly entered data.'});
-
-      }else{
-        res.status(500).json({message:`${erro.message} - Error to find author.`});
-      }
+      next(erro);
+      
     }
   }
 
-  static async registerAuthor(req, res){
+  static async registerAuthor(req, res, next){
     try{
       const newAuthor = await author.create(req.body);
       res.status(201).json({ message: 'Author registered successfully!', author: newAuthor});
 
     } catch(erro){
-      res.status(500).json({message:`${erro.message} - Error to register author`});
+      next(erro);
     }
   }
 
-  static async updateAuthor(req, res){
+  static async updateAuthor(req, res, next){
     try{
       const id = req.params.id;
       await author.findByIdAndUpdate(id, req.body);
       res.status(200).json({message: 'author updated successfully!'});
+
     } catch(erro){
-      res.status(500).json({message:`${erro.message} - Error to update author`});
+      next(erro);
     }
   }
 
-  static async deleteAuthor(req, res){
+  static async deleteAuthor(req, res, next){
     try{
       const id = req.params.id;
       await author.findByIdAndDelete(id, req.body);
       res.status(200).json({message: 'Author deleted successfully!'});
+
     } catch(erro){
-      res.status(500).json({message:`${erro.message} - Error to delete author`});
+      next(erro);
     }
   }
 

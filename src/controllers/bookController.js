@@ -3,25 +3,25 @@ import book from '../models/Book.js';
 
 class BookController{
 
-  static async listBooks(req, res){
+  static async listBooks(req, res, next){
     try{
       const listBooks = await book.find({});
       res.status(200).json(listBooks);
     } catch(erro){
-      res.status(500).json({message:`${erro.message} - Error to list books`});
+      next(erro);
     }
   }
-  static async listBookById(req, res){
+  static async listBookById(req, res, next){
     try{
       const id = req.params.id;
       const bookFound = await book.findById(id);
       res.status(200).json(bookFound);
     } catch(erro){
-      res.status(500).json({message:`${erro.message} - Error to find book`});
+      next(erro);
     }
   }
 
-  static async registerBook(req, res){
+  static async registerBook(req, res, next){
     const newBook = req.body ;
     try{
       const authorFound = await author.findById(newBook.author);
@@ -30,37 +30,37 @@ class BookController{
       res.status(201).json({ message: 'Book registered successfully!', book: bookCreate});
 
     } catch(erro){
-      res.status(500).json({message:`${erro.message} - Error to register book`});
+      next(erro);
     }
   }
 
-  static async updateBook(req, res){
+  static async updateBook(req, res, next){
     try{
       const id = req.params.id;
       await book.findByIdAndUpdate(id, req.body);
       res.status(200).json({message: 'Book updated successfully!'});
     } catch(erro){
-      res.status(500).json({message:`${erro.message} - Error to update book`});
+      next(erro);
     }
   }
 
-  static async deleteBook(req, res){
+  static async deleteBook(req, res, next){
     try{
       const id = req.params.id;
       await book.findByIdAndDelete(id, req.body);
       res.status(200).json({message: 'Book deleted successfully!'});
     } catch(erro){
-      res.status(500).json({message:`${erro.message} - Error to delete book`});
+      next(erro);
     }
   }
 
-  static async findBooksByPublisher(req, res){
+  static async findBooksByPublisher(req, res, next){
     const publisher = req.query.publisher;
     try{
       const booksByPublisher = await book.find({ publisher });
       res.status(200).json(booksByPublisher);
     } catch(erro){
-      res.status(500).json({message:`${erro.message} - Error to find books`});
+      next(erro);
     }
   }
 
