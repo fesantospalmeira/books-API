@@ -1,69 +1,117 @@
-import { author } from '../models/Author.js';
-import book from '../models/Book.js';
+import NotFound from '../errors/NotFound.js';
+import { book, author } from '../models/index.js';
 
-class BookController{
+class BookController {
 
-  static async listBooks(req, res, next){
-    try{
-      const listBooks = await book.find({});
-      res.status(200).json(listBooks);
-    } catch(erro){
+  static async listBooks(req, res, next) {
+    try {
+      const searchBooks = book.find();
+
+      req.result = searchBooks;
+
+      next();
+
+    } catch (erro) {
       next(erro);
+
     }
   }
-  static async listBookById(req, res, next){
-    try{
+  static async listBookById(req, res, next) {
+    try {
       const id = req.params.id;
       const bookFound = await book.findById(id);
-      res.status(200).json(bookFound);
-    } catch(erro){
+      if (bookFound != null) {
+        res.status(200).json(bookFound);
+
+      } else {
+        next(new NotFound("Book Id not found."))
+      }
+    } catch (erro) {
       next(erro);
     }
   }
 
-  static async registerBook(req, res, next){
-    const newBook = req.body ;
-    try{
+  static async registerBook(req, res, next) {
+    const newBook = req.body;
+
+    try {
       const authorFound = await author.findById(newBook.author);
-      const bookComplete = {...newBook, author: {...authorFound._doc}};
+      const bookComplete = { ...newBook, author: { ...authorFound._doc } };
       const bookCreate = await book.create(bookComplete);
-      res.status(201).json({ message: 'Book registered successfully!', book: bookCreate});
 
-    } catch(erro){
+      res.status(201).json({ message: 'Book registered successfully!', book: bookCreate });
+
+    } catch (erro) {
       next(erro);
+
     }
   }
 
-  static async updateBook(req, res, next){
-    try{
+  static async updateBook(req, res, next) {
+    try {
       const id = req.params.id;
-      await book.findByIdAndUpdate(id, req.body);
-      res.status(200).json({message: 'Book updated successfully!'});
-    } catch(erro){
+      const bookFound = await book.findByIdAndUpdate(id, req.body);
+      if (bookFound != null) {
+        res.status(200).json({ message: "Book updated sucessfully!" });
+
+      } else {
+        next(new NotFound("Book Id not found."))
+      }
+    } catch (erro) {
       next(erro);
     }
   }
 
-  static async deleteBook(req, res, next){
-    try{
+  static async deleteBook(req, res, next) {
+    try {
       const id = req.params.id;
-      await book.findByIdAndDelete(id, req.body);
-      res.status(200).json({message: 'Book deleted successfully!'});
-    } catch(erro){
+      const bookFound = await book.findByIdAndDelete(id, req.body);
+      if (bookFound != null) {
+        res.status(200).json({ message: "Book deleted sucessfully!" });
+
+      } else {
+        next(new NotFound("Book Id not found."))
+      }
+    } catch (erro) {
       next(erro);
     }
   }
 
-  static async findBooksByPublisher(req, res, next){
-    const publisher = req.query.publisher;
-    try{
-      const booksByPublisher = await book.find({ publisher });
-      res.status(200).json(booksByPublisher);
-    } catch(erro){
+  static async findBooksByFilter(req, res, next) {
+    try {
+      const search = await processSearch(req.query);
+
+      if (search !== null) {
+        const booksByFilter =  book
+        .find(search)
+        .populate("author");
+      
+        req.result = booksByFilter;
+        next();
+      } else {
+        res.status(200).send([]);
+      }
+    } catch (erro) {
       next(erro);
     }
   }
 
 }
 
+async function processSearch(parameters) {
+  const { publisher, title } = parameters;
+  
+  let search = {};
+
+  //regex com javascript
+  const regex = new RegExp(title, "i")
+  if (title) search.title = regex;
+
+  //regex com mongodb
+  if (publisher) search.publisher = { $regex: publisher, $options: "i" };
+
+  return search;
+}
+
 export default BookController;
+

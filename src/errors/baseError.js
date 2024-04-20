@@ -9,6 +9,6 @@ class BaseErro extends Error{
       message: this.message,
       status: this.status
     });
-  }
-}
+  };
+};
 export default BaseErro;

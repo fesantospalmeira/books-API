@@ -7,7 +7,14 @@ const bookSchema = new mongoose.Schema({
   author: authorSchema,
   price: { type: Number},
   publisher: { type: String },
-  pages: { type: Number }
+  pages: { type: Number, 
+    validate: {
+      validator: (value)=> {
+      return value >= 10 && value <= 5000;
+          }, 
+        message: "The number of pages must be between 10 and 5000. Value provided: {VALUE}."
+      } 
+  }
 
 }, { versionKey: false });
 
