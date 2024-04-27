@@ -5,6 +5,9 @@ const bookSchema = new mongoose.Schema({
   id: { type: mongoose.Schema.Types.ObjectId },
   title: { type: String, required: [true, 'The title of the book is required']},
   author: authorSchema,
+  src: {
+    type: String, required:[true,'The source of the image, is required.']
+  },
   price: { type: Number},
   publisher: { type: String },
   pages: { type: Number, 
