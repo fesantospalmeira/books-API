@@ -17,6 +17,10 @@ const bookSchema = new mongoose.Schema({
           }, 
         message: "The number of pages must be between 10 and 5000. Value provided: {VALUE}."
       } 
+  },
+  
+  createdAt: { 
+    type: Date, default: Date.now 
   }
 
 }, { versionKey: false });

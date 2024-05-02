@@ -6,7 +6,10 @@ const routes = express.Router();
 
 routes.get('/books', BookController.listBooks, pagination);
 routes.get('/books/search', BookController.findBooksByFilter, pagination);
+routes.get('/books/recents',BookController.listRecentBooks);
 routes.get('/books/:id', BookController.listBookById);
+routes.get('/authors/:authorId/books', BookController.listBookByAuthor);
+
 
 routes.post('/books', BookController.registerBook);
 

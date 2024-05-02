@@ -31,6 +31,44 @@ class BookController {
     }
   }
 
+  static async listBookByAuthor(req, res, next) {
+    try {
+      const authorId = req.params.authorId;
+      const authorFound = await author.findById(authorId);
+      if (!authorFound) {
+        return next(new NotFound("Author not found."));
+      }
+      const booksByAuthor = await book.find({ 'author._id': authorId });
+
+      if (!booksByAuthor || booksByAuthor.length === 0) {
+        return next(new NotFound("No books found for this author."));
+      }
+
+      res.status(200).json(booksByAuthor);
+
+    } catch (erro) {
+      next(erro);
+    }
+  }
+
+  static async listRecentBooks(req, res, next) {
+    try {
+      const recentBooks = await book
+        .find()
+        .sort({ createdAt: -1 })
+        .limit(3)
+
+      if (recentBooks != null) {
+        res.status(200).json(recentBooks);
+
+      } else {
+        next(new NotFound("Book Id not found."))
+      }
+    } catch (erro) {
+      next(erro)
+    }
+  }
+
   static async registerBook(req, res, next) {
     const newBook = req.body;
 
@@ -82,10 +120,10 @@ class BookController {
       const search = await processSearch(req.query);
 
       if (search !== null) {
-        const booksByFilter =  book
-        .find(search)
-        .populate("author");
-      
+        const booksByFilter = book
+          .find(search)
+          .populate("author");
+
         req.result = booksByFilter;
         next();
       } else {
@@ -100,7 +138,7 @@ class BookController {
 
 async function processSearch(parameters) {
   const { publisher, title } = parameters;
-  
+
   let search = {};
 
   //regex com javascript

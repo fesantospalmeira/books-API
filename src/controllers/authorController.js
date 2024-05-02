@@ -3,7 +3,6 @@ import NotFound from '../errors/NotFound.js';
 import { author } from '../models/index.js';
 
 class AuthorController{
-
   static listAuthors(req, res, next){
     try{
       const listAuthors = author.find({});
