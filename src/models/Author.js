@@ -13,6 +13,10 @@ const authorSchema = new mongoose.Schema({
   },
   img: {
     type: String, required: [true, 'The source of the image, is required.']
+  },
+
+  src:{
+    type: String, required:[true, 'The source of author wiki is required.']
   }
 
 }, { versionKey: false });
